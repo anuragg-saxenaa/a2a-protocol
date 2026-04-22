@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "start": "ts-node example/two-agents.ts"
+    "start": "ts-node --transpile-only example/two-agents.ts",
+    "test": "ts-node --transpile-only test/two-agents.test.ts"
   },
   "files": [
     "dist",
@@ -19,12 +20,11 @@
     "messaging"
   ],
   "license": "MIT",
-  "dependencies": {
+  "devDependencies": {
     "@tsconfig/node16": "^16.1.8",
+    "@types/node": "^25.6.0",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
   },
-  "devDependencies": {
-    "@types/node": "^25.6.0"
-  }
+  "dependencies": {}
 }
