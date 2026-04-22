@@ -1,0 +1,12 @@
+{
+  "thresholds": {
+    "accountAgeDays": 7,
+    "prCount24h": 3,
+    "commitSimilarity": 0.8
+  },
+  "actions": {
+    "flag": true,
+    "postComment": true,
+    "blockMerge": false
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "a2a-protocol",
+  "version": "1.0.0",
+  "description": "Lightweight TypeScript protocol for agent-to-agent request/response messaging over HTTP",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "ts-node example/two-agents.ts"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "keywords": [
+    "a2a",
+    "agent",
+    "protocol",
+    "messaging"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@tsconfig/node16": "^16.1.8",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0"
+  }
+}
