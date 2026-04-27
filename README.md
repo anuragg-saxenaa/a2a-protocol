@@ -1,31 +1,89 @@
-# A2A Protocol
+# a2a-protocol
 
-Lightweight TypeScript protocol for agent-to-agent request/response messaging over HTTP.
+Lightweight agent-to-agent communication library. No dependencies.
 
 ## Install
 
 ```bash
-npm install
+npm install a2a-protocol
 ```
 
-## Usage
+## Quick start (5 lines)
 
-```ts
-import { A2AProtocol, MessageType } from "./src/protocol";
+```typescript
+import { A2AProtocol } from 'a2a-protocol';
 
-const agent = new A2AProtocol("agent-A");
-agent.on(MessageType.REQUEST, (msg) => ({ ok: true, echo: msg.payload }));
-agent.listen(3001);
+// Create two agents
+const agentA = new A2AProtocol({ agentId: 'a', agentName: 'Agent A', port: 4001 });
+const agentB = new A2AProtocol({ agentId: 'b', agentName: 'Agent B', port: 4002 });
 
-await agent.send("http://localhost:3002/receive", {
-  from: "agent-A", to: "agent-B", type: MessageType.REQUEST, payload: { text: "hello" }
+// Agent B handles incoming messages
+agentB.on('request', async (msg) => ({ reply: `got: ${msg.payload}` }));
+
+await agentB.listen();
+
+// Agent A sends a message
+const res = await agentA.send('http://localhost:4002', { text: 'hello' });
+console.log(res.payload); // { received: true, reply: 'got: { text: hello }' }
+
+agentA.close(); agentB.close();
+```
+
+## API
+
+### `A2AProtocol`
+
+```typescript
+const agent = new A2AProtocol({
+  agentId: 'my-agent',    // unique agent identifier
+  agentName: 'My Agent',  // display name
+  port: 4001,             // port to listen on
+  hostname: '0.0.0.0',   // optional bind address
+  defaultTimeoutMs: 5000, // timeout for send() calls
 });
+
+// Register handler for 'request', 'response', 'notify', 'broadcast', or '*'
+agent.on('request', async (msg) => ({ /* return payload */ }));
+
+// Start HTTP server
+await agent.listen();
+
+// Send request → wait for response
+const res = await agent.send('http://localhost:4002', { key: 'value' });
+
+// Fire-and-forget notification
+await agent.notify('http://localhost:4002', { event: 'update' });
+
+// Broadcast to multiple agents
+await agent.broadcast(['http://localhost:4002', 'http://localhost:4003'], { event: 'broadcast' });
+
+// Shutdown
+agent.close();
 ```
 
-## Run Demo
+## Message types
+
+- `request` — sends payload, waits for response
+- `response` — reply to a request (auto-generated on handler return)
+- `notify` — fire-and-forget notification
+- `broadcast` — message to all agents in a scope
+
+## Demo
 
 ```bash
-npm start
+npx tsx example/two-agents.ts
+# agent-B listening on port 4002
+# agent-B received: hello
+# agent-A got response: {"received":true,"reply":"pong at 2026-04-27T05:45:00.000Z"}
 ```
 
-Starts two agents — agent-A sends a message to agent-B, which replies and prints "agent-B received: hello".
+## Architecture
+
+```
+src/types.ts     — A2AMessage interface, MessageType enum, factory functions
+src/transport.ts — HTTP server (built-in http module), send/receive logic
+src/protocol.ts  — A2AProtocol class, high-level send/broadcast/notify
+example/         — demo scripts
+```
+
+No external dependencies. Pure Node.js.
